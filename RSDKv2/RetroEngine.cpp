@@ -3,6 +3,9 @@
 #include <winrt/base.h>
 #include <winrt/Windows.Storage.h>
 #endif
+#if RETRO_PLATFORM == RETRO_WEB
+#include <emscripten.h>
+#endif
 
 bool usingCWD        = false;
 bool engineDebugMode = false;
@@ -249,7 +252,44 @@ void RetroEngine::Init() {
     skipFrameIndex   = refreshRate / lower;
 }
 
+#if RETRO_PLATFORM == RETRO_WEB
+static void emscripten_main_loop() {
+    if (!Engine.GameRunning) {
+        emscripten_cancel_main_loop();
+        return;
+    }
+    processEvents();
+    for (int s = 0; s < Engine.gameSpeed; ++s) {
+        ReadInputDevice();
+        if (!Engine.masterPaused || Engine.frameStep) {
+            switch (Engine.GameMode) {
+                case ENGINE_SYSMENU:
+                    ProcessSystemMenu();
+                    FlipScreen();
+                    break;
+                case ENGINE_MAINGAME:
+                    ProcessStage();
+                    break;
+                case ENGINE_INITSYSMENU:
+                    LoadGameConfig("Data/Game/GameConfig.bin");
+                    InitSystemMenu();
+                    ResetCurrentStageFolder();
+                    break;
+                case ENGINE_EXITGAME:
+                    Engine.GameRunning = false;
+                    break;
+                default: break;
+            }
+        }
+    }
+    Engine.frameStep = false;
+}
+#endif
+
 void RetroEngine::Run() {
+#if RETRO_PLATFORM == RETRO_WEB
+    emscripten_set_main_loop(emscripten_main_loop, 0, 1);
+#else
 #if !RETRO_USE_ORIGINAL_CODE
     unsigned long long targetFreq = SDL_GetPerformanceFrequency() / Engine.refreshRate;
     unsigned long long curTicks   = 0;
@@ -294,6 +334,7 @@ void RetroEngine::Run() {
 
         frameStep = false;
     }
+#endif
 
     ReleaseSoundDevice();
     ReleaseRenderDevice();

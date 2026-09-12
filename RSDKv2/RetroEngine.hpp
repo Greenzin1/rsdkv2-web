@@ -49,8 +49,13 @@ typedef unsigned int uint;
 #define RETRO_STANDARD (0)
 #define RETRO_MOBILE   (1)
 
+// Custom platform for Emscripten/Web
+#define RETRO_WEB (8)
+
 // use this macro (RETRO_PLATFORM) to define platform specific code blocks and etc to run the engine
-#if defined _WIN32
+#if defined __EMSCRIPTEN__
+#define RETRO_PLATFORM (RETRO_WEB)
+#elif defined _WIN32
 #if defined WINAPI_FAMILY
 #if WINAPI_FAMILY != WINAPI_FAMILY_APP
 #define RETRO_PLATFORM (RETRO_WIN)
@@ -82,6 +87,12 @@ typedef unsigned int uint;
 #define BASE_PATH            ""
 #define DEFAULT_SCREEN_XSIZE 320
 #define DEFAULT_FULLSCREEN   false
+#elif RETRO_PLATFORM == RETRO_WEB
+#define BASE_PATH            ""
+#define RETRO_USING_MOUSE
+#define RETRO_USING_TOUCH
+#define DEFAULT_SCREEN_XSIZE 320
+#define DEFAULT_FULLSCREEN   false
 #else
 #define BASE_PATH ""
 #define RETRO_USING_MOUSE
@@ -90,7 +101,7 @@ typedef unsigned int uint;
 #define DEFAULT_FULLSCREEN   false
 #endif
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_OSX || RETRO_PLATFORM == RETRO_iOS || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_WEB
 #define RETRO_USING_SDL1 (0)
 #define RETRO_USING_SDL2 (1)
 #else // Since its an else & not an elif these platforms probably aren't supported yet
@@ -109,7 +120,7 @@ enum RetroStates {
 #define SCREEN_YSIZE   (240)
 #define SCREEN_CENTERY (SCREEN_YSIZE / 2)
 
-#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP
+#if RETRO_PLATFORM == RETRO_WIN || RETRO_PLATFORM == RETRO_UWP || RETRO_PLATFORM == RETRO_WEB
 #if RETRO_USING_SDL2
 #include <SDL.h>
 #elif RETRO_USING_SDL1

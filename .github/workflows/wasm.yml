@@ -1,0 +1,47 @@
+name: Build RSDKv2 WASM
+
+on:
+  push:
+    paths:
+      - RSDKv2/**
+      - platforms/**
+      - .github/workflows/wasm.yml
+      - CMakeLists.txt
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  v2-wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Emscripten
+        uses: mymindstorm/setup-emsdk@v14
+
+      - name: Build RSDKv2 WASM
+        run: |
+          emcmake cmake -B build -DCMAKE_BUILD_TYPE=Release -DPLATFORM=Emscripten
+          cmake --build build --parallel
+
+      - name: List artifacts
+        run: ls -la build/
+
+      - name: Create web output
+        run: |
+          mkdir -p artifacts
+          cp build/RetroEngine.js artifacts/ || true
+          cp build/RetroEngine.wasm artifacts/ || true
+          cp build/*.js artifacts/ || true
+          cp build/*.wasm artifacts/ || true
+          ls -la artifacts/
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: v2-wasm
+          path: artifacts/

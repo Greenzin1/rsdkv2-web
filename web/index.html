@@ -27,6 +27,19 @@
             image-rendering: crisp-edges;
         }
         #status { color: #aaa; font-size: 14px; min-height: 20px; }
+        #log {
+            background: #000;
+            color: #0f0;
+            font-family: monospace;
+            font-size: 11px;
+            width: 640px;
+            height: 200px;
+            overflow-y: auto;
+            padding: 8px;
+            border: 1px solid #333;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
         #controls {
             color: #888;
             font-size: 12px;
@@ -60,28 +73,47 @@
             <p id="status" style="margin-top:12px"></p>
         </div>
         <div id="game-area" style="display:none"></div>
+        <div id="log"></div>
         <div id="controls">
             Arrow Keys: Move | A/Z: Jump | S/X: Attack | D/C: Special | Enter: Start
         </div>
     </div>
 
     <script>
+        var logEl = document.getElementById('log');
+        function log(msg) {
+            var line = document.createElement('div');
+            line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+            logEl.appendChild(line);
+            logEl.scrollTop = logEl.scrollHeight;
+            console.log(msg);
+        }
+
+        log('Page loaded, waiting for Data.bin...');
+
         var dataBuffer = null;
+        var engineStarted = false;
 
         document.getElementById('dataFileInput').addEventListener('change', function(e) {
             var file = e.target.files[0];
-            if (!file) return;
-            document.getElementById('status').textContent = 'Loading ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + 'MB)...';
+            if (!file) { log('No file selected'); return; }
+            log('File selected: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + 'MB)');
 
             var reader = new FileReader();
             reader.onload = function(ev) {
                 dataBuffer = new Uint8Array(ev.target.result);
+                log('File read complete: ' + dataBuffer.length + ' bytes');
                 startEngine();
             };
+            reader.onerror = function() { log('ERROR: FileReader failed'); };
             reader.readAsArrayBuffer(file);
         });
 
         function startEngine() {
+            if (engineStarted) { log('Engine already started, skipping'); return; }
+            engineStarted = true;
+            log('Starting engine...');
+
             document.getElementById('load-screen').style.display = 'none';
             var gameArea = document.getElementById('game-area');
             gameArea.style.display = 'block';
@@ -89,20 +121,41 @@
             var canvas = document.createElement('canvas');
             canvas.width = 640;
             canvas.height = 480;
+            canvas.id = 'canvas';
             gameArea.appendChild(canvas);
+            log('Canvas created: 640x480');
 
-            var Module = {
+            // Define Module BEFORE loading RSDKv2.js
+            window.Module = {
                 canvas: canvas,
                 preRun: [function() {
-                    Module.FS.writeFile('/Data.bin', dataBuffer);
-                    console.log('[RSDKv2] Wrote Data.bin (' + dataBuffer.length + ' bytes)');
+                    log('preRun: Writing Data.bin to MEMFS...');
+                    try {
+                        Module.FS.writeFile('/Data.bin', dataBuffer);
+                        log('preRun: Data.bin written OK (' + dataBuffer.length + ' bytes)');
+                    } catch(err) {
+                        log('preRun ERROR: ' + err.message);
+                    }
+                    try {
+                        Module.FS.mkdir('/Data');
+                    } catch(e) {}
                 }],
-                print: function(text) { console.log('[RSDKv2]', text); },
-                printErr: function(text) { console.error('[RSDKv2]', text); }
+                postRun: [function() {
+                    log('postRun: Engine main() returned');
+                }],
+                print: function(text) { log('[ENGINE] ' + text); },
+                printErr: function(text) { log('[ERROR] ' + text); },
+                onAbort: function(what) { log('[ABORT] ' + what); },
+                onRuntimeInitialized: function() {
+                    log('Runtime initialized');
+                }
             };
+            log('Module defined, loading RSDKv2.js...');
 
             var script = document.createElement('script');
             script.src = 'RSDKv2.js';
+            script.onload = function() { log('RSDKv2.js loaded'); };
+            script.onerror = function() { log('ERROR: Failed to load RSDKv2.js'); };
             document.body.appendChild(script);
         }
     </script>

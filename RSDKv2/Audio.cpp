@@ -58,15 +58,19 @@ int InitSoundDevice()
     want.channels = AUDIO_CHANNELS;
     want.callback = ProcessAudioPlayback;
 
+    int initResult = 0;
+    SDL_AudioSpec have;
 #if RETRO_USING_SDL2
-    if ((audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &audioDeviceFormat, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE)) > 0) {
+    audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
+    if (audioDevice > 0) {
         audioEnabled = true;
         SDL_PauseAudioDevice(audioDevice, 0);
+        PrintLog("Audio: Opened device %d, freq=%d, channels=%d, format=%d", audioDevice, have.freq, have.channels, have.format);
     }
     else {
-        PrintLog("Unable to open audio device: %s", SDL_GetError());
+        PrintLog("Audio: FAILED to open device: %s", SDL_GetError());
         audioEnabled = false;
-        return true; // no audio but game wont crash now
+        return true;
     }
 
 #elif RETRO_USING_SDL1

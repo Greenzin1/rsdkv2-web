@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Sonic Nexus Web - RSDKv2</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+        #container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        canvas {
+            border: 2px solid #333;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+        #status { color: #aaa; font-size: 14px; min-height: 20px; }
+        #controls {
+            color: #888;
+            font-size: 12px;
+            text-align: center;
+            line-height: 1.6;
+        }
+        .btn {
+            background: #333;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn:hover { background: #555; }
+        #load-screen {
+            text-align: center;
+            padding: 40px;
+        }
+        #load-screen h2 { margin-bottom: 16px; }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <div id="load-screen">
+            <h2>Sonic Nexus Web</h2>
+            <p style="color:#aaa;margin-bottom:16px">Select your Data.bin file from Sonic Nexus 2008</p>
+            <label class="btn" for="dataFileInput">Load Data.bin</label>
+            <input type="file" id="dataFileInput" accept=".bin,.pak,.rsdk,*" style="display:none">
+            <p id="status" style="margin-top:12px"></p>
+        </div>
+        <div id="game-area" style="display:none"></div>
+        <div id="controls">
+            Arrow Keys: Move | A/Z: Jump | S/X: Attack | D/C: Special | Enter: Start
+        </div>
+    </div>
+
+    <script>
+        var dataBuffer = null;
+
+        document.getElementById('dataFileInput').addEventListener('change', function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            document.getElementById('status').textContent = 'Loading ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + 'MB)...';
+
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                dataBuffer = new Uint8Array(ev.target.result);
+                startEngine();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        function startEngine() {
+            document.getElementById('load-screen').style.display = 'none';
+            var gameArea = document.getElementById('game-area');
+            gameArea.style.display = 'block';
+
+            var canvas = document.createElement('canvas');
+            canvas.width = 640;
+            canvas.height = 480;
+            gameArea.appendChild(canvas);
+
+            var Module = {
+                canvas: canvas,
+                preRun: [function() {
+                    Module.FS.writeFile('/Data.bin', dataBuffer);
+                    console.log('[RSDKv2] Wrote Data.bin (' + dataBuffer.length + ' bytes)');
+                }],
+                print: function(text) { console.log('[RSDKv2]', text); },
+                printErr: function(text) { console.error('[RSDKv2]', text); }
+            };
+
+            var script = document.createElement('script');
+            script.src = 'RSDKv2.js';
+            document.body.appendChild(script);
+        }
+    </script>
+</body>
+</html>

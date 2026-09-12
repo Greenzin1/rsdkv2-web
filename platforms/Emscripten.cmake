@@ -1,8 +1,7 @@
 add_executable(RetroEngine ${RETRO_FILES})
 
-set(EMSCRIPTEN_FLAGS "-sUSE_SDL=2 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=33554432 -sUSE_OGG=1 -sUSE_VORBIS=1 --closure 0")
-
-target_link_options(RetroEngine PRIVATE ${EMSCRIPTEN_FLAGS})
+target_compile_options(RetroEngine PRIVATE -sUSE_SDL=2 -sUSE_OGG=1 -sUSE_VORBIS=1)
+target_link_options(RetroEngine PRIVATE -sUSE_SDL=2 -sUSE_OGG=1 -sUSE_VORBIS=1 -sALLOW_MEMORY_GROWTH=1 -sINITIAL_MEMORY=33554432)
 
 target_link_options(RetroEngine PRIVATE -sEXPORTED_FUNCTIONS='["_main"]' -sEXPORTED_RUNTIME_METHODS='["ccall","cwrap"]')
 

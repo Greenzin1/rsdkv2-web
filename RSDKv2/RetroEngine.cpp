@@ -271,7 +271,7 @@ static void emscripten_main_loop() {
                     ProcessStage();
                     break;
                 case ENGINE_INITSYSMENU:
-                    LoadGameConfig("Data/Game/GameConfig.bin");
+                    Engine.LoadGameConfig("Data/Game/GameConfig.bin");
                     InitSystemMenu();
                     ResetCurrentStageFolder();
                     break;

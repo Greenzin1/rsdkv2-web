@@ -235,16 +235,23 @@ void RetroEngine::Init() {
 
     GameMode = ENGINE_EXITGAME;
     GameRunning  = false;
+    PrintLog("Init: Checking Data.bin...");
+    CheckBinFile(dest);
+    PrintLog("Init: UseBinFile=%d, dataFile=%s", Engine.UseBinFile, Engine.dataFile);
     if (LoadGameConfig("Data/Game/GameConfig.bin")) {
+        PrintLog("Init: GameConfig OK");
         if (InitRenderDevice()) {
+            PrintLog("Init: Render OK");
             if (InitSoundDevice()) {
+                PrintLog("Init: Sound OK");
                 InitSystemMenu();
                 ClearScriptData();
                 initialised = true;
-                GameRunning     = true;
-            }
-        }
-    }
+                GameRunning = true;
+                PrintLog("Init: GameRunning=true");
+            } else { PrintLog("Init: Sound FAILED"); }
+        } else { PrintLog("Init: Render FAILED"); }
+    } else { PrintLog("Init: GameConfig FAILED"); }
 
     // Calculate Skip frame
     int lower        = getLowerRate(targetRefreshRate, refreshRate);

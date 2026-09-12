@@ -64,6 +64,7 @@ int InitSoundDevice()
     audioDevice = SDL_OpenAudioDevice(nullptr, 0, &want, &have, SDL_AUDIO_ALLOW_FREQUENCY_CHANGE);
     if (audioDevice > 0) {
         audioEnabled = true;
+        audioDeviceFormat = have;
         SDL_PauseAudioDevice(audioDevice, 0);
         PrintLog("Audio: Opened device %d, freq=%d, channels=%d, format=%d", audioDevice, have.freq, have.channels, have.format);
     }

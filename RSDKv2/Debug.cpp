@@ -7,7 +7,6 @@ int modOffset = 0;
 void PrintLog(const char *msg, ...)
 {
     if (engineDebugMode || Engine.consoleEnabled) {
-#endif
         char buffer[0x100];
 
         // make the full string

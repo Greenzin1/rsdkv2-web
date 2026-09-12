@@ -149,9 +149,6 @@
                         log('preRun ERROR: ' + err.message + ' | ' + err.stack);
                     }
                 }],
-                postRun: [function() {
-                    log('postRun: Engine main() returned');
-                }],
                 print: function(text) { log('[ENGINE] ' + text); },
                 printErr: function(text) { log('[ERROR] ' + text); },
                 onAbort: function(what) { log('[ABORT] ' + what); },

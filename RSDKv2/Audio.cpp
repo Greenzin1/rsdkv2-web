@@ -67,9 +67,11 @@ int InitSoundDevice()
         audioDeviceFormat = have;
         SDL_PauseAudioDevice(audioDevice, 0);
         PrintLog("Audio: Opened device %d, freq=%d, channels=%d, format=%d", audioDevice, have.freq, have.channels, have.format);
+        printf("[Audio] Opened device %d, freq=%d, channels=%d, format=%d\n", audioDevice, have.freq, have.channels, have.format);
     }
     else {
         PrintLog("Audio: FAILED to open device: %s", SDL_GetError());
+        printf("[Audio] FAILED: %s\n", SDL_GetError());
         audioEnabled = false;
         return true;
     }

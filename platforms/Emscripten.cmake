@@ -5,7 +5,7 @@ target_link_options(RetroEngine PRIVATE -sUSE_SDL=2 -sUSE_OGG=1 -sUSE_VORBIS=1 -
 
 target_link_options(RetroEngine PRIVATE
     "SHELL:-sEXPORTED_FUNCTIONS=[\"_main\"]"
-    "SHELL:-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\"]"
+    "SHELL:-sEXPORTED_RUNTIME_METHODS=[\"ccall\",\"cwrap\",\"FS\"]"
 )
 
 if(RETRO_USE_MOD_LOADER)

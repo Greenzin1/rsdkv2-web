@@ -30,8 +30,8 @@ SDL_AudioSpec audioDeviceFormat;
 SDL_AudioDeviceID audioDevice;
 #endif
 
-#define LockAudioDevice()   SDL_LockAudio()
-#define UnlockAudioDevice() SDL_UnlockAudio()
+#define LockAudioDevice()   SDL_LockAudioDevice(audioDevice)
+#define UnlockAudioDevice() SDL_UnlockAudioDevice(audioDevice)
 
 #define AUDIO_FREQUENCY (44100)
 #define AUDIO_FORMAT    (AUDIO_S16SYS) /**< Signed 16-bit samples */

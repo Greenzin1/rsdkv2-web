@@ -114,6 +114,16 @@
             engineStarted = true;
             log('Starting engine...');
 
+            // Resume AudioContext on user gesture
+            try {
+                var AC = window.AudioContext || window.webkitAudioContext;
+                if (AC) {
+                    var ctx = new AC();
+                    if (ctx.state === 'suspended') { ctx.resume(); log('AudioContext resumed'); }
+                    ctx.close();
+                }
+            } catch(e) { log('AudioContext init: ' + e.message); }
+
             document.getElementById('load-screen').style.display = 'none';
             var gameArea = document.getElementById('game-area');
             gameArea.style.display = 'block';
@@ -153,7 +163,20 @@
 
             var script = document.createElement('script');
             script.src = 'RSDKv2.js';
-            script.onload = function() { log('RSDKv2.js loaded'); };
+            script.onload = function() {
+                log('RSDKv2.js loaded');
+                // Aggressively resume AudioContext on any user event
+                ['click','keydown','mousedown','touchstart'].forEach(function(evt) {
+                    document.addEventListener(evt, function resumeAudio() {
+                        try {
+                            if (Module.SDL2 && Module.SDL2.audioContext && Module.SDL2.audioContext.state === 'suspended') {
+                                Module.SDL2.audioContext.resume();
+                                log('SDL2 AudioContext resumed via ' + evt);
+                            }
+                        } catch(e) {}
+                    }, { once: false });
+                });
+            };
             script.onerror = function() { log('ERROR: Failed to load RSDKv2.js'); };
             document.body.appendChild(script);
         }

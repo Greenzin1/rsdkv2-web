@@ -1,6 +1,6 @@
 # RSDKv2 Web
 
-A WebAssembly port of the [RSDKv2 Decompilation](https://github.com/RSDKModding/RSDKv2-Decompilation) (Sonic Nexus 2008) running in the browser via Emscripten + Genesis Plus GX.
+A WebAssembly port of the [RSDKv2 Decompilation](https://github.com/RSDKModding/RSDKv2-Decompilation) (Sonic Nexus 2008) running in the browser via Emscripten.
 
 ## About
 
@@ -71,9 +71,8 @@ rsdkv2-web/
 ## Credits
 
 - **Taxman / Christian Whitehead** — Original Retro Engine
-- **RSDKModding** — [RSDKv2 Decompilation](https://github.com/RSDKModding/RSDKv2-Decompilation)
+- **RSDKModding** — Original [RSDKv2 Decompilation](https://github.com/RSDKModding/RSDKv2-Decompilation)
 - **Emscripten** — C/C++ to WebAssembly compiler
-- **libretro/Genesis Plus GX** — Genesis/Mega Drive emulator core (WASM build)
 
 ## Contact
 

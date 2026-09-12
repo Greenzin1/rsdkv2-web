@@ -131,14 +131,13 @@
                 preRun: [function() {
                     log('preRun: Writing Data.bin to MEMFS...');
                     try {
-                        Module.FS.writeFile('/Data.bin', dataBuffer);
+                        var fs = (typeof FS !== 'undefined') ? FS : Module.FS;
+                        if (!fs) { log('preRun ERROR: FS not available'); return; }
+                        fs.writeFile('/Data.bin', dataBuffer);
                         log('preRun: Data.bin written OK (' + dataBuffer.length + ' bytes)');
                     } catch(err) {
-                        log('preRun ERROR: ' + err.message);
+                        log('preRun ERROR: ' + err.message + ' | ' + err.stack);
                     }
-                    try {
-                        Module.FS.mkdir('/Data');
-                    } catch(e) {}
                 }],
                 postRun: [function() {
                     log('postRun: Engine main() returned');

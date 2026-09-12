@@ -495,7 +495,11 @@ bool PlayMusic(int track)
     }
     trackBuffer = track;
     musicStatus = MUSIC_LOADING;
+#if RETRO_PLATFORM == RETRO_WEB
+    LoadMusic(NULL);
+#else
     SDL_CreateThread((SDL_ThreadFunction)LoadMusic, "LoadMusic", NULL);
+#endif
     UnlockAudioDevice();
     return true;
 }

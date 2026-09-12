@@ -51,6 +51,8 @@ int InitSoundDevice()
 {
     StopAllSfx(); //"init"
 #if RETRO_USING_SDL1 || RETRO_USING_SDL2
+    SDL_InitSubSystem(SDL_INIT_AUDIO);
+
     SDL_AudioSpec want;
     want.freq     = AUDIO_FREQUENCY;
     want.format   = AUDIO_FORMAT;
